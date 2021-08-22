@@ -1,0 +1,11 @@
+<%- include('partials/header') %>
+
+ <h6>Username:</h6> <p> <%= myUserName %> </p>
+ <h6>Id account:</h6> <p> <%= myGoogleId %> </p>
+ <h6>My Secrets:</h6> <% mySecrets.forEach(function(secret){ %>
+                    <p>
+                      <%= secret %>
+                    </p>
+ <% })%>
+
+  <%- include('partials/header') %>

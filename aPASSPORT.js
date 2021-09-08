@@ -10,7 +10,7 @@ const session = require('express-session')
 const passportLocalMongoose = require('passport-local-mongoose');
 const findOrCreate = require("mongoose-findOrCreate");
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-
+const FacebookStrategy = require("passport-facebook").Strategy;
 
 
 const app = express();
@@ -38,6 +38,7 @@ const usersSchema = new mongoose.Schema ({
   username: String,
   password: String,
   googleId: String,
+  facebookId: String,
   secret: [{type:String}]
 });
 
@@ -75,6 +76,21 @@ passport.use(new GoogleStrategy({
 
 ));
 
+passport.use(new FacebookStrategy({
+    clientID: process.env.FACEBOOK_CLIENT_ID,
+    clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+    callbackURL: "http://localhost:3000/auth/facebook/secrets"
+  },
+  function(accessToken, refreshToken, profile, cb) {
+    User.findOrCreate({ facebookId: profile.id }, function (err, user) {
+      if(!user){
+        res.redirect("/login");
+      }else{
+        return cb(err, user);
+    }
+  });}
+));
+
 app.route("/")
    .get(function(req, res){
      res.render("home");
@@ -94,6 +110,15 @@ app.route("/auth/google")
 // .post(passport.authenticate("google")
 app.get("/auth/google/secrets",
 passport.authenticate("google", { failureRedirect :"/login"}),
+function(req, res){
+  res.redirect("/secrets");
+});
+
+app.route("/auth/facebook")
+.get(passport.authenticate("facebook"));
+
+app.get("/auth/facebook/secrets",
+passport.authenticate("facebook", { failureRedirect: '/login' }),
 function(req, res){
   res.redirect("/secrets");
 });
@@ -172,7 +197,7 @@ app.route("/myaccount")
     res.redirect("/login");
   }
 
-  console.log(req.user.id);
+  // console.log(req.user.id);
 })
 
 app.route("/myaccount/:userId")
@@ -191,7 +216,32 @@ app.route("/myaccount/:userId")
     }
   });
 })
-//   -----LOGOUT-------------
+
+app.route("/myaccount/delete")
+.post(function(req, res){
+  const deleteSecret = req.body.mysecretId;
+  console.log(deleteSecret);
+
+  if(req.isAuthenticated()){
+    User.findOneAndUpdate({name: deleteSecret}, {$pull: {secret: {id : req.body.mysecretId}}}, function(err){
+      if(err){
+        console.log(err);
+      }else{
+        res.redirect("/myaccount/" + req.user.id);
+      }
+    })
+  }else{
+    res.redirect("/login");
+  }
+
+//   User.deleteMany(req.body.deleteSecret, function(err){
+// if(err){console.log(err);
+// }res.redirect("/myaccount");
+//   })
+
+
+})
+// //   -----LOGOUT-------------
 app.route("/logout")
 .get(function(req, res){
   req.logout();

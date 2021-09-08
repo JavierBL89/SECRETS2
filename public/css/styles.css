@@ -3,6 +3,9 @@ body {
   background-color: #E8ECEF;
 }
 
+nav{
+  padding: 2% 10%;
+}
 .centered {
     padding-top: 200px;
     text-align: center;
@@ -13,4 +16,8 @@ body {
   font-size: 2rem;
   color: #fff;
   background-color: #000;
+}
+
+button .delete{
+  background-color: white;
 }

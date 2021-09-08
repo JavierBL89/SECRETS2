@@ -1,11 +1,26 @@
 <%- include('partials/header') %>
 
- <h6>Username:</h6> <p> <%= myUserName %> </p>
- <h6>Id account:</h6> <p> <%= myGoogleId %> </p>
- <h6>My Secrets:</h6> <% mySecrets.forEach(function(secret){ %>
-                    <p>
-                      <%= secret %>
-                    </p>
- <% })%>
+<div style="margin: 3% 10%">
 
-  <%- include('partials/header') %>
+  <h6>Username:</h6>
+  <p style="margin-left: 10px;"> <%= myUserName %> </p>
+  <h6>Id account:</h6>
+  <p style="margin-left: 10px;"> <%= myGoogleId %> </p>
+
+  <h6>My Secrets:</h6> <% mySecrets.forEach(function(secret){ %>
+
+  <form action="/myaccount/delete" method="POST">
+    <div style="display: flex;">
+      <p name="mysecretId" value="<%= secret.id %>">
+        <%= secret %>
+        <button type="submit" class="delete" name="deleteSecret" value="deleteSecret" style="border: none; background-color: white; cursor: pointer; color: rgb(28, 168, 173); position: absolute; right: 500px;">Remove secret</button>
+      </p>
+    </div>
+  </form>
+
+
+  <% })%>
+</div>
+
+
+<%- include('partials/footer') %>
